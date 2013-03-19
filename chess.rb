@@ -17,6 +17,7 @@ class Tile
 
   #def threat
   #end
+end
 
 class Board
 
@@ -38,9 +39,27 @@ class Board
   end
 
   def place_pieces
+    self.tile_at([0, 0]).occupied_by = Rook.new("black", [0, 0])
+    self.tile_at([0, 1]).occupied_by = Knight.new("black", [0, 1])
+    self.tile_at([0, 2]).occupied_by = Bishop.new("black", [0, 2])
+    self.tile_at([0, 3]).occupied_by = Queen.new("black", [0, 3])
+    self.tile_at([0, 4]).occupied_by = King.new("black", [0, 4])
+    self.tile_at([0, 5]).occupied_by = Bishop.new("black", [0, 5])
+    self.tile_at([0, 6]).occupied_by = Knight.new("black", [0, 6])
+    self.tile_at([0, 7]).occupied_by = Rook.new("black", [0, 7])
+    8.times {|i| self.tile_at([1, i]).occupied_by = Pawn.new("black", [1, i])}
 
-
+    8.times {|i| self.tile_at([6, i]).occupied_by = Pawn.new("white", [6, i])}
+    self.tile_at([7, 0]).occupied_by = Rook.new("white", [7, 0])
+    self.tile_at([7, 1]).occupied_by = Knight.new("white", [7, 1])
+    self.tile_at([7, 2]).occupied_by = Bishop.new("white", [7, 2])
+    self.tile_at([7, 3]).occupied_by = Queen.new("white", [7, 3])
+    self.tile_at([7, 4]).occupied_by = King.new("white", [7, 4])
+    self.tile_at([7, 5]).occupied_by = Bishop.new("white", [7, 5])
+    self.tile_at([7, 6]).occupied_by = Knight.new("white", [7, 6])
+    self.tile_at([7, 7]).occupied_by = Rook.new("white", [7, 7])
   end
+
 end
 
 class Pieces
@@ -48,40 +67,73 @@ class Pieces
   attr_reader :color
   attr_accessor :eligible_path, :position
 
-  def initialize(:color, :position)
+  def initialize(color, position)
     @color = color
     @position = position
   end
 
-  def possible_moves
+end
+
+class Pawn < Pieces
+
+  def initialize(color, position)
+    super(color, position)
+
+  end
+
+end
+
+class Bishop < Pieces
+  def initialize(color, position)
+    super(color, position)
+
+  end
+
+end
+
+class Rook < Pieces
+  def initialize(color, position)
+    super(color, position)
 
   end
 end
 
-- position
-- possible_moves
-- color?
-  Pawn
-  Bishop
-  Rook
-  Knight
-  King
-  Queen
+class Knight < Pieces
+  def initialize(color, position)
+    super(color, position)
 
-    Methods:
-    Move
-    Remove "die"
+  end
+end
+
+class Queen < Pieces
+  def initialize(color, position)
+    super(color, position)
+
+  end
+end
+
+class King < Pieces
+  def initialize(color, position)
+    super(color, position)
+
+  end
+end
 
 
-class Players
-  class HumanPlayers
-
-    def my_turn
-
-  #Computer
-
-Game
-  def initialize
-    init Board
-
+# #     Methods:
+# #     Move
+# #     Remove "die"
+#
+#
+# class Players
+#   class HumanPlayers
+#
+#     def my_turn
+#
+#   #Computer
+#
+# Game
+#   def initialize
+#     init Board
+#
 
