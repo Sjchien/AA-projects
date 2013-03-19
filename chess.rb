@@ -15,21 +15,22 @@ class Tile
     }.inspect
   end
 
-  def threat
-  end
+  #def threat
+  #end
 
 class Board
 
   def initialize
-
+    @board = generate_board
+    place_pieces
   end
 
-  def tile_at(position)
-    # returns Tile obj at that position
+  def tile_at(position)     # returns Tile obj at that position
+    row, col = position
+    @board[row][col]
   end
 
   private
-
   def generate_board
     Array.new(8) do |row|
       Array.new(8) { |col| Tile.new(self, [row, col]) }
@@ -38,11 +39,25 @@ class Board
 
   def place_pieces
 
-  end
 
+  end
 end
 
-Pieces  :eligible_path, :color
+class Pieces
+
+  attr_reader :color
+  attr_accessor :eligible_path, :position
+
+  def initialize(:color, :position)
+    @color = color
+    @position = position
+  end
+
+  def possible_moves
+
+  end
+end
+
 - position
 - possible_moves
 - color?
