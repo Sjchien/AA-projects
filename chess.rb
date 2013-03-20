@@ -51,9 +51,9 @@ class Board
     self.tile_at([0, 5]).occupied_by = Bishop.new("black", [0, 5], self)
     self.tile_at([0, 6]).occupied_by = Knight.new("black", [0, 6], self)
     self.tile_at([0, 7]).occupied_by = Rook.new("black", [0, 7], self)
-    8.times {|i| self.tile_at([1, i]).occupied_by = Pawn.new("black", [1, i], self)}
+    #8.times {|i| self.tile_at([1, i]).occupied_by = Pawn.new("black", [1, i], self)}
 
-    8.times {|i| self.tile_at([6, i]).occupied_by = Pawn.new("white", [6, i], self)}
+    #8.times {|i| self.tile_at([6, i]).occupied_by = Pawn.new("white", [6, i], self)}
     self.tile_at([7, 0]).occupied_by = Rook.new("white", [7, 0], self)
     self.tile_at([7, 1]).occupied_by = Knight.new("white", [7, 1], self)
     self.tile_at([7, 2]).occupied_by = Bishop.new("white", [7, 2], self)
@@ -94,11 +94,10 @@ class Pieces
     end
   end
 
-  def eligible_moves        # for step pieces
+  def eligible_moves(start_pos = self.position, delta = self.delta)
     eligible_moves = []
-    start_pos = self.position
 
-    self.delta.each do |dir|
+    delta.each do |dir|
       dir_y, dir_x = dir
 
       new_spot = [start_pos[0]+dir[0], start_pos[1]+dir[1]]
@@ -139,64 +138,57 @@ class Pieces
 end
 
 class StepPieces < Pieces
-  #   if self.color == "white"          # flip y coordinate if "white"
-  #     self.delta.each do |coor|
-  #       new_spot = [self.position[0]-coor[0], self.position[1]+coor[1]]
+
+end
+
+class SlidingPieces < Pieces
+
+  def eligible_moves_sliding
+    eligible_sliding = []
+
+    # for each direction...
+    eligible_dir = eligible_moves.map do |dir|
+      [ dir[0] - self.position[0] , dir[1] - self.position[1] ]
+    end
+
+    start_pos = self.position
+
+    eligible_dir.each do |eligible_dir|
+      test_pos = [start_pos[0] + eligible_dir[0],start_pos[1] + eligible_dir[1]]
+
+      while valid_tile?(test_pos)
+
+        eligible_sliding << test_pos
+
+        test_pos = [test_pos[0] + eligible_dir[0], test_pos[1] + eligible_dir[1]]
+      end
+    end
+
+    eligible_sliding
+  end
+
+  # def eligible_moves
+  #   eligible_moves = []
+  #   start_pos = self.position
   #
-  #       # move to empty tile
-  #       if in_bounds?(new_spot) && @board.piece_at(new_spot) == nil
-  #         eligible_moves << new_spot
-  #       # capture enemy
-  #       elsif in_bounds?(new_spot) && @board.piece_at(new_spot).color != self.color
-  #         eligible_moves << new_spot
-  #       else
-  #         puts "ineligible move"
-  #       end
-  #     end
-  #   else
-  #     self.delta.each do |coor|
-  #       new_spot = [self.position[0]+coor[0], self.position[1]+coor[1]]
+  #   self.delta.each do |dir|
+  #     dir_y, dir_x = dir
   #
-  #       # move to empty tile
-  #       if in_bounds?(new_spot) && @board.piece_at(new_spot) == nil
-  #         eligible_moves << new_spot
-  #       # capture enemy
-  #       elsif in_bounds?(new_spot) && @board.piece_at(new_spot).color != self.color
-  #         eligible_moves << new_spot
+  #     while valid_tile?(start_pos)
+  #       if self.color == "white"
+  #         new_spot = [start_pos[0]-dir[0], start_pos[1]+dir[1]]
   #       else
-  #         puts "ineligible move #{new_spot}"
+  #         new_spot = [start_pos[0]+dir[0], start_pos[1]+dir[1]]
   #       end
+  #
+  #       p new_spot
+  #       eligible_moves << new_spot
+  #       start_pos = new_spot
   #     end
   #   end
   #
   #   eligible_moves
   # end
-end
-
-class SlidingPieces < Pieces
-
-  def eligible_moves
-    eligible_moves = []
-    start_pos = self.position
-
-    self.delta.each do |dir|
-      dir_y, dir_x = dir
-
-      while valid_tile?(start_pos)
-        if self.color == "white"
-          new_spot = [start_pos[0]-dir[0], start_pos[1]+dir[1]]
-        else
-          new_spot = [start_pos[0]+dir[0], start_pos[1]+dir[1]]
-        end
-
-        p new_spot
-        eligible_moves << new_spot
-        start_pos = new_spot
-      end
-    end
-
-    eligible_moves
-  end
 end
 
 class King < StepPieces
