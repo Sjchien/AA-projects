@@ -4,7 +4,7 @@ class Tile
 
   def initialize(board, position)
     @board, @position = board, position
-    @occupied_by = nil
+    @occupied_by #= nil
   end
 
   def inspect
@@ -32,7 +32,7 @@ class Board
   def piece_at(position)
     row, col = position
     tile = @board[row][col]
-    tile.occupied_by
+    tile.occupied_by unless tile.nil?
   end
 
   private
@@ -78,7 +78,8 @@ class Pieces
   end
 
   def in_bounds?(position)
-    !@board.tile_at(position).nil?
+    bounds = 0..7
+    bounds.include?(position[0]) && bounds.include?(position[1])
   end
 
   def move
@@ -90,7 +91,8 @@ class Pieces
     when self.class == Rook
       # account for depth, 4 directions
     when self.class == Knight
-      #
+      # if eligible_moves.count > 0, then move
+      #       if enemy piece is @ new_spot, then capture
     when self.class == Bishop
       # account for depth, 4 directions
     when self.class == Queen
@@ -100,6 +102,17 @@ class Pieces
     end
 
 
+
+    # step pieces
+    # move into eligible spots (exception case for Pawn)
+
+
+
+    # sliding pieces
+    # find depth using BFS
+    # move into eligible spots
+
+
   end
 
   def eligible_moves
@@ -107,11 +120,17 @@ class Pieces
 
     if self.color == "white"          # flip y coordinate if "white"
       self.delta.each do |coor|
-        eligible_moves << [self.position[0]-coor[0], self.position[1]+coor[1]]
+        new_spot = [self.position[0]-coor[0], self.position[1]+coor[1]]
+        if @board.piece_at(new_spot).color != self.color  ## BUG: returning nil
+          eligible_moves << new_spot if in_bounds?(new_spot)
+        end
       end
     else
       self.delta.each do |coor|
-        eligible_moves << [self.position[0]+coor[0], self.position[1]+coor[1]]
+        new_spot = [self.position[0]+coor[0], self.position[1]+coor[1]]
+        if @board.piece_at(new_spot).color != self.color  ## BUG: returning nil
+          eligible_moves << new_spot if in_bounds?(new_spot)
+        end
       end
     end
 
