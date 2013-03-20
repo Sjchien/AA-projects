@@ -12,9 +12,6 @@ class Tile
       occupied_by: occupied_by
     }.inspect
   end
-
-  #def threat
-  #end
 end
 
 class Board
@@ -109,36 +106,15 @@ class Pieces
     eligible_moves
   end
 
-#   def move
-#     # will utilize the Pieces's position, color, Deltas
-#
-#     # case self
-# #     when self.class == Pawn
-# #       # account for kill, must be aware of adjacet enemies
-# #     when self.class == Rook
-# #       # account for depth, 4 directions
-# #     when self.class == Knight
-# #       # if eligible_moves.count > 0, then move
-# #       #       if enemy piece is @ new_spot, then capture
-# #     when self.class == Bishop
-# #       # account for depth, 4 directions
-# #     when self.class == Queen
-# #       # account for depth, 8 directions
-# #     when self.class == King
-# #       # account for checkmate
-# #     end
-#
-#     # step pieces
-#     # move into eligible spots (exception case for Pawn)
-#
-#     # sliding pieces
-#     # find depth using BFS
-#     # move into eligible spots
-#   end
+  def move(position)
+    old_position = self.position
+    self.position = position
+    @board.tile_at(position).occupied_by = self
+    @board.tile_at(old_position).occupied_by = nil
+  end
 end
 
 class StepPieces < Pieces
-
 end
 
 class SlidingPieces < Pieces
@@ -146,49 +122,22 @@ class SlidingPieces < Pieces
   def eligible_moves_sliding
     eligible_sliding = []
 
-    # for each direction...
     eligible_dir = eligible_moves.map do |dir|
       [ dir[0] - self.position[0] , dir[1] - self.position[1] ]
     end
 
     start_pos = self.position
-
     eligible_dir.each do |eligible_dir|
       test_pos = [start_pos[0] + eligible_dir[0],start_pos[1] + eligible_dir[1]]
 
       while valid_tile?(test_pos)
-
         eligible_sliding << test_pos
-
         test_pos = [test_pos[0] + eligible_dir[0], test_pos[1] + eligible_dir[1]]
       end
     end
 
     eligible_sliding
   end
-
-  # def eligible_moves
-  #   eligible_moves = []
-  #   start_pos = self.position
-  #
-  #   self.delta.each do |dir|
-  #     dir_y, dir_x = dir
-  #
-  #     while valid_tile?(start_pos)
-  #       if self.color == "white"
-  #         new_spot = [start_pos[0]-dir[0], start_pos[1]+dir[1]]
-  #       else
-  #         new_spot = [start_pos[0]+dir[0], start_pos[1]+dir[1]]
-  #       end
-  #
-  #       p new_spot
-  #       eligible_moves << new_spot
-  #       start_pos = new_spot
-  #     end
-  #   end
-  #
-  #   eligible_moves
-  # end
 end
 
 class King < StepPieces
