@@ -82,64 +82,147 @@ class Pieces
     bounds.include?(position[0]) && bounds.include?(position[1])
   end
 
-  def move
-    # will utilize the Pieces's position, color, Deltas
-
-    case self
-    when self.class == Pawn
-      # account for kill, must be aware of adjacet enemies
-    when self.class == Rook
-      # account for depth, 4 directions
-    when self.class == Knight
-      # if eligible_moves.count > 0, then move
-      #       if enemy piece is @ new_spot, then capture
-    when self.class == Bishop
-      # account for depth, 4 directions
-    when self.class == Queen
-      # account for depth, 8 directions
-    when self.class == King
-      # account for checkmate
-    end
-
-
-
-    # step pieces
-    # move into eligible spots (exception case for Pawn)
-
-
-
-    # sliding pieces
-    # find depth using BFS
-    # move into eligible spots
-
-
-  end
-
-  def eligible_moves
-    eligible_moves = []
-
-    if self.color == "white"          # flip y coordinate if "white"
-      self.delta.each do |coor|
-        new_spot = [self.position[0]-coor[0], self.position[1]+coor[1]]
-        if @board.piece_at(new_spot).color != self.color  ## BUG: returning nil
-          eligible_moves << new_spot if in_bounds?(new_spot)
-        end
+  def valid_tile?(position)
+    if in_bounds?(position)
+      if @board.piece_at(position).nil? || @board.piece_at(position).color != self.color
+        true
+      else
+        false
       end
     else
-      self.delta.each do |coor|
-        new_spot = [self.position[0]+coor[0], self.position[1]+coor[1]]
-        if @board.piece_at(new_spot).color != self.color  ## BUG: returning nil
-          eligible_moves << new_spot if in_bounds?(new_spot)
-        end
-      end
+      false
+    end
+  end
+
+  def eligible_moves        # for step pieces
+    eligible_moves = []
+    start_pos = self.position
+
+    self.delta.each do |dir|
+      dir_y, dir_x = dir
+
+      new_spot = [start_pos[0]+dir[0], start_pos[1]+dir[1]]
+
+
+      eligible_moves << new_spot if valid_tile?(new_spot)
     end
 
     eligible_moves
   end
 
+#   def move
+#     # will utilize the Pieces's position, color, Deltas
+#
+#     # case self
+# #     when self.class == Pawn
+# #       # account for kill, must be aware of adjacet enemies
+# #     when self.class == Rook
+# #       # account for depth, 4 directions
+# #     when self.class == Knight
+# #       # if eligible_moves.count > 0, then move
+# #       #       if enemy piece is @ new_spot, then capture
+# #     when self.class == Bishop
+# #       # account for depth, 4 directions
+# #     when self.class == Queen
+# #       # account for depth, 8 directions
+# #     when self.class == King
+# #       # account for checkmate
+# #     end
+#
+#     # step pieces
+#     # move into eligible spots (exception case for Pawn)
+#
+#     # sliding pieces
+#     # find depth using BFS
+#     # move into eligible spots
+#   end
 end
 
-class Pawn < Pieces
+class StepPieces < Pieces
+  #   if self.color == "white"          # flip y coordinate if "white"
+  #     self.delta.each do |coor|
+  #       new_spot = [self.position[0]-coor[0], self.position[1]+coor[1]]
+  #
+  #       # move to empty tile
+  #       if in_bounds?(new_spot) && @board.piece_at(new_spot) == nil
+  #         eligible_moves << new_spot
+  #       # capture enemy
+  #       elsif in_bounds?(new_spot) && @board.piece_at(new_spot).color != self.color
+  #         eligible_moves << new_spot
+  #       else
+  #         puts "ineligible move"
+  #       end
+  #     end
+  #   else
+  #     self.delta.each do |coor|
+  #       new_spot = [self.position[0]+coor[0], self.position[1]+coor[1]]
+  #
+  #       # move to empty tile
+  #       if in_bounds?(new_spot) && @board.piece_at(new_spot) == nil
+  #         eligible_moves << new_spot
+  #       # capture enemy
+  #       elsif in_bounds?(new_spot) && @board.piece_at(new_spot).color != self.color
+  #         eligible_moves << new_spot
+  #       else
+  #         puts "ineligible move #{new_spot}"
+  #       end
+  #     end
+  #   end
+  #
+  #   eligible_moves
+  # end
+end
+
+class SlidingPieces < Pieces
+
+  def eligible_moves
+    eligible_moves = []
+    start_pos = self.position
+
+    self.delta.each do |dir|
+      dir_y, dir_x = dir
+
+      while valid_tile?(start_pos)
+        if self.color == "white"
+          new_spot = [start_pos[0]-dir[0], start_pos[1]+dir[1]]
+        else
+          new_spot = [start_pos[0]+dir[0], start_pos[1]+dir[1]]
+        end
+
+        p new_spot
+        eligible_moves << new_spot
+        start_pos = new_spot
+      end
+    end
+
+    eligible_moves
+  end
+end
+
+class King < StepPieces
+  def initialize(color, position, board)
+    super(color, position, board)
+    @delta = [
+      [-1,-1],[-1,0],[-1, 1],
+      [ 0,-1],       [ 0, 1],
+      [ 1,-1],[ 1,0],[ 1, 1]
+    ]
+
+  end
+end
+
+class Knight < StepPieces
+
+  def initialize(color, position, board)
+    super(color, position, board)
+    @delta = [
+      [-1,-2],[-2,-1],[-2,1],[-1, 2],
+      [ 1,-2],[ 2,-1],[ 2,1],[ 1, 2]
+    ]
+  end
+end
+
+class Pawn < StepPieces
 
   pawn_move = [0,1]
   pawn_first_move = [0,2]
@@ -149,9 +232,9 @@ class Pawn < Pieces
   def initialize(color, position, board)
     super(color, position, board)
     @delta = [
-      [0,1], # typical move
-      [0,2], # first move only
-      [-1,1],# left kill move
+      [1,0], # typical move
+      [2,0], # first move only
+      [1,-1],# left kill move
       [1,1]  # right kill move
     ]
 
@@ -180,62 +263,54 @@ class Pawn < Pieces
   def kill
     x = DELTA[2][0]
     y = DELTA[2][1]
-
-
-
-
-  end
-
-end
-
-class Bishop < Pieces
-  def initialize(color, position, board)
-    super(color, position, board)
-
-  end
-
-end
-
-class Rook < Pieces
-  def initialize(color, position, board)
-    super(color, position, board)
-
   end
 end
 
-class Knight < Pieces
-
+class Rook < SlidingPieces
   def initialize(color, position, board)
     super(color, position, board)
     @delta = [
-      [-1,-2],[-2,-1],[-2,1],[-1, 2],
-      [ 1,-2],[ 2,-1],[ 2,1],[ 1, 2]
+      [ 0,-1],  # vertical north
+      [ 0, 1],  # vertical south
+      [ 1, 0],  # horizontal east
+      [-1, 0]   # horizontal west
     ]
 
-
-
   end
 end
 
-class Queen < Pieces
-  def initialize(color, position, board)
-    super(color, position, board)
-
-  end
-end
-
-class King < Pieces
+class Bishop < SlidingPieces
   def initialize(color, position, board)
     super(color, position, board)
     @delta = [
-      [-1,-1],[-1,0],[-1, 1],
-      [ 0,-1],       [ 0, 1],
-      [ 1,-1],[ 1,0],[ 1, 1]
+      [ 1, 1],   # southeast
+      [ 1,-1],   # southwest
+      [-1, 1],   # northeast
+      [-1,-1]    # northwest
     ]
 
+  end
+
+end
+
+class Queen < SlidingPieces
+  def initialize(color, position, board)
+    super(color, position, board)
+    @delta = [
+      [ 0,-1],   # vertical north
+      [-1, 1],   # northeast
+      [ 1, 0],   # horizontal east
+      [ 1, 1],   # southeast
+      [ 0, 1],   # vertical south
+      [ 1,-1],   # southwest
+      [-1, 0],   # horizontal west
+      [-1,-1]    # northwest
+    ]
 
   end
 end
+
+
 
 
 # #     Methods:
