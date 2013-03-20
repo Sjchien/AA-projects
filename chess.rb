@@ -68,7 +68,7 @@ end
 
 class Pieces
 
-  attr_reader :color
+  attr_reader :color, :delta
   attr_accessor :eligible_paths, :position
 
   def initialize(color, position, board)
@@ -77,46 +77,93 @@ class Pieces
     @board = board
   end
 
-  def eligible_move
+  def in_bounds?(position)
+    !@board.tile_at(position).nil?
+  end
+
+  def move
+    # will utilize the Pieces's position, color, Deltas
+
+    case self
+    when self.class == Pawn
+      # account for kill, must be aware of adjacet enemies
+    when self.class == Rook
+      # account for depth, 4 directions
+    when self.class == Knight
+      #
+    when self.class == Bishop
+      # account for depth, 4 directions
+    when self.class == Queen
+      # account for depth, 8 directions
+    when self.class == King
+      # account for checkmate
+    end
+
 
   end
 
-end
-
-class Pawn < Pieces
-  DELTA = [
-    [0,1], # typical move
-    [0,2], # first move only
-    [-1,1],# left kill move
-    [1,1]  # right kill move
-  ]
-
-  def initialize(color, position, board)
-    super(color, position, board)
-
-  end # y-coor needs to be negative for white peices
-
-  def eligible_move
-    x = DELTA[0][0]
-    y = DELTA[0][1]
+  def eligible_moves
     eligible_moves = []
 
-    puts eligible_moves
-
-    if self.color == "black" && @board.tile_at([position[0]+y,position[1]+x]).occupied_by.nil?
-      eligible_moves << @board.tile_at([position[0]+y,position[1]+x]).position
-      puts "black pawn eligible move #{eligible_moves}"
-    elsif self.color == "white" && @board.tile_at([position[0]-y,position[1]+x]).occupied_by.nil?
-      eligible_moves << @board.tile_at([position[0]-y,position[1]+x]).position
-      puts "white pawn eligible move #{eligible_moves}"
+    if self.color == "white"          # flip y coordinate if "white"
+      self.delta.each do |coor|
+        eligible_moves << [self.position[0]-coor[0], self.position[1]+coor[1]]
+      end
     else
-      puts "no eligible move"
+      self.delta.each do |coor|
+        eligible_moves << [self.position[0]+coor[0], self.position[1]+coor[1]]
+      end
     end
 
     eligible_moves
   end
 
+end
+
+class Pawn < Pieces
+
+  pawn_move = [0,1]
+  pawn_first_move = [0,2]
+  #
+  #
+
+  def initialize(color, position, board)
+    super(color, position, board)
+    @delta = [
+      [0,1], # typical move
+      [0,2], # first move only
+      [-1,1],# left kill move
+      [1,1]  # right kill move
+    ]
+
+  end # y-coor needs to be negative for white peices
+
+  # def eligible_move
+#     x = DELTA[0][0]
+#     y = DELTA[0][1]
+#     eligible_moves = []
+#
+#     puts eligible_moves
+#
+#     if self.color == "black" && @board.tile_at([position[0]+y,position[1]+x]).occupied_by.nil?
+#       eligible_moves << @board.tile_at([position[0]+y,position[1]+x]).position
+#       puts "black pawn eligible move #{eligible_moves}"
+#     elsif self.color == "white" && @board.tile_at([position[0]-y,position[1]+x]).occupied_by.nil?
+#       eligible_moves << @board.tile_at([position[0]-y,position[1]+x]).position
+#       puts "white pawn eligible move #{eligible_moves}"
+#     else
+#       puts "no eligible move"
+#     end
+#
+#     eligible_moves
+#   end
+
   def kill
+    x = DELTA[2][0]
+    y = DELTA[2][1]
+
+
+
 
   end
 
@@ -138,8 +185,15 @@ class Rook < Pieces
 end
 
 class Knight < Pieces
+
   def initialize(color, position, board)
     super(color, position, board)
+    @delta = [
+      [-1,-2],[-2,-1],[-2,1],[-1, 2],
+      [ 1,-2],[ 2,-1],[ 2,1],[ 1, 2]
+    ]
+
+
 
   end
 end
@@ -154,6 +208,12 @@ end
 class King < Pieces
   def initialize(color, position, board)
     super(color, position, board)
+    @delta = [
+      [-1,-1],[-1,0],[-1, 1],
+      [ 0,-1],       [ 0, 1],
+      [ 1,-1],[ 1,0],[ 1, 1]
+    ]
+
 
   end
 end
