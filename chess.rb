@@ -1,4 +1,4 @@
-class Tile
+class Tile #REV: oh interesting!
   attr_reader :position
   attr_accessor :occupied_by
 
@@ -17,7 +17,7 @@ class Tile
   #end
 end
 
-class Board
+class Board   #REV: wow this looks good!
 
   def initialize
     @board = generate_board
@@ -120,7 +120,7 @@ class Pieces
 
     if self.color == "white"          # flip y coordinate if "white"
       self.delta.each do |coor|
-        new_spot = [self.position[0]-coor[0], self.position[1]+coor[1]]
+        new_spot = [self.position[0]-coor[0], self.position[1]+coor[1]]  #:REV  why -,+ ?..interesting (i don't understand)
         if @board.piece_at(new_spot).color != self.color  ## BUG: returning nil
           eligible_moves << new_spot if in_bounds?(new_spot)
         end
@@ -237,6 +237,8 @@ class King < Pieces
   end
 end
 
+
+#REV:  good job making it clean!  hope it works well for you tomorrow!
 
 # #     Methods:
 # #     Move
