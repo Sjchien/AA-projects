@@ -8,9 +8,7 @@ class Tile
   end
 
   def inspect
-    { position: position,
-      occupied_by: occupied_by
-    }.inspect
+    @occupied_by
   end
 end
 
@@ -18,6 +16,7 @@ class Board
 
   def initialize
     @board = generate_board
+    print_board = []
     place_pieces
   end
 
@@ -30,6 +29,15 @@ class Board
     row, col = position
     tile = @board[row][col]
     tile.occupied_by unless tile.nil?
+  end
+
+  def display_board
+    @board.each do |row|
+      row.each do |tile|
+        p tile
+      end
+
+    end
   end
 
   private
@@ -48,9 +56,9 @@ class Board
     self.tile_at([0, 5]).occupied_by = Bishop.new("black", [0, 5], self)
     self.tile_at([0, 6]).occupied_by = Knight.new("black", [0, 6], self)
     self.tile_at([0, 7]).occupied_by = Rook.new("black", [0, 7], self)
-    #8.times {|i| self.tile_at([1, i]).occupied_by = Pawn.new("black", [1, i], self)}
+    8.times {|i| self.tile_at([1, i]).occupied_by = Pawn.new("black", [1, i], self)}
 
-    #8.times {|i| self.tile_at([6, i]).occupied_by = Pawn.new("white", [6, i], self)}
+    8.times {|i| self.tile_at([6, i]).occupied_by = Pawn.new("white", [6, i], self)}
     self.tile_at([7, 0]).occupied_by = Rook.new("white", [7, 0], self)
     self.tile_at([7, 1]).occupied_by = Knight.new("white", [7, 1], self)
     self.tile_at([7, 2]).occupied_by = Bishop.new("white", [7, 2], self)
@@ -72,6 +80,10 @@ class Pieces
     @color = color
     @position = position
     @board = board
+  end
+
+  def inspect
+    self.class.to_s
   end
 
   def in_bounds?(position)
@@ -141,6 +153,7 @@ class SlidingPieces < Pieces
 end
 
 class King < StepPieces
+
   def initialize(color, position, board)
     super(color, position, board)
     @delta = [
@@ -165,11 +178,6 @@ end
 
 class Pawn < StepPieces
 
-  pawn_move = [0,1]
-  pawn_first_move = [0,2]
-  #
-  #
-
   def initialize(color, position, board)
     super(color, position, board)
     @delta = [
@@ -179,31 +187,6 @@ class Pawn < StepPieces
       [1,1]  # right kill move
     ]
 
-  end # y-coor needs to be negative for white peices
-
-  # def eligible_move
-#     x = DELTA[0][0]
-#     y = DELTA[0][1]
-#     eligible_moves = []
-#
-#     puts eligible_moves
-#
-#     if self.color == "black" && @board.tile_at([position[0]+y,position[1]+x]).occupied_by.nil?
-#       eligible_moves << @board.tile_at([position[0]+y,position[1]+x]).position
-#       puts "black pawn eligible move #{eligible_moves}"
-#     elsif self.color == "white" && @board.tile_at([position[0]-y,position[1]+x]).occupied_by.nil?
-#       eligible_moves << @board.tile_at([position[0]-y,position[1]+x]).position
-#       puts "white pawn eligible move #{eligible_moves}"
-#     else
-#       puts "no eligible move"
-#     end
-#
-#     eligible_moves
-#   end
-
-  def kill
-    x = DELTA[2][0]
-    y = DELTA[2][1]
   end
 end
 
@@ -251,23 +234,17 @@ class Queen < SlidingPieces
   end
 end
 
+class Game
+
+  def play
+    b = Board.new
 
 
 
-# #     Methods:
-# #     Move
-# #     Remove "die"
-#
-#
-# class Players
-#   class HumanPlayers
-#
-#     def my_turn
-#
-#   #Computer
-#
-# Game
-#   def initialize
-#     init Board
-#
+  end
 
+end
+
+class HumanPlayer
+
+end
