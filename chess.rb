@@ -2,6 +2,8 @@
 ## but probably just cmd+a + del would be nicer
 
 class Tile
+  # KL: Good experience with class decomposition, but next time
+  # definitely let a matrix of arrays represent the board
   attr_reader :position
   attr_accessor :occupied_by
 
@@ -51,6 +53,8 @@ class Board
   end
 
   def place_pieces
+    # KL: this could definitely be refactored to loop through the tiles
+    # and place the pieces
     self.tile_at([0, 0]).occupied_by = Rook.new("black", [0, 0], self)
     self.tile_at([0, 1]).occupied_by = Knight.new("black", [0, 1], self)
     self.tile_at([0, 2]).occupied_by = Bishop.new("black", [0, 2], self)
@@ -90,11 +94,13 @@ class Pieces
   end
 
   def in_bounds?(position)
-    bounds = 0..7
+    bounds = 0..7 # KL: use board.length - 1 just to keep it tied together
     bounds.include?(position[0]) && bounds.include?(position[1])
   end
 
   def valid_tile?(position)
+    # KL: shorten to 'true if in_bounds && (conditions)...',
+    # then you won't need the if/else blocks
     if in_bounds?(position)
       if @board.piece_at(position).nil? || @board.piece_at(position).color != self.color
         true
@@ -114,7 +120,7 @@ class Pieces
 
       new_spot = [start_pos[0]+dir[0], start_pos[1]+dir[1]]
 
-
+      # spacing here is a bit wonky
       eligible_moves << new_spot if valid_tile?(new_spot)
     end
 
@@ -124,6 +130,7 @@ class Pieces
   def move(position)
     old_position = self.position
     self.position = position
+    # KL: use parallel assignment here to minimize length
     @board.tile_at(position).occupied_by = self
     @board.tile_at(old_position).occupied_by = nil
   end
@@ -133,6 +140,9 @@ class StepPieces < Pieces
 end
 
 class SlidingPieces < Pieces
+  # KL: you really don't need StepPieces vs SlidingPieces,
+  # just keep these methods in the Piece class and have attributes
+  # for your pieces that speficy if they're sliding or not
 
   def eligible_moves_sliding
     eligible_sliding = []
@@ -242,7 +252,8 @@ class Game
   def play(obj_pos, desired_move)
     b = Board.new
     obj = b.piece_at(obj_pos)
-
+    # KL: definitely break this out into chunks
+    # have methods for 'get_move', 'make_move,' etc
     if (obj.class == Rook) || (obj.class == Queen) || (obj.class == Bishop)
       if obj.eligible_moves_sliding.include?(desired_move)
         obj.move(desired_move)
