@@ -236,11 +236,17 @@ end
 
 class Game
 
-  def play
+  def play(obj_pos, desired_move)
     b = Board.new
 
+    obj = b.piece_at(obj_pos)
 
-
+    if obj.eligible_moves_sliding.include?(desired_move)
+      obj.move(desired_move)
+      puts "you moved #{obj.color} #{obj.class} to #{desired_move}"
+    else
+      puts "sorry, you suck"
+    end
   end
 
 end
