@@ -1,3 +1,6 @@
+## this whole damn thing needs a ton of refactoring
+## but probably just cmd+a + del would be nicer
+
 class Tile
   attr_reader :position
   attr_accessor :occupied_by
@@ -238,14 +241,24 @@ class Game
 
   def play(obj_pos, desired_move)
     b = Board.new
-
     obj = b.piece_at(obj_pos)
 
-    if obj.eligible_moves_sliding.include?(desired_move)
-      obj.move(desired_move)
-      puts "you moved #{obj.color} #{obj.class} to #{desired_move}"
+    if (obj.class == Rook) || (obj.class == Queen) || (obj.class == Bishop)
+      if obj.eligible_moves_sliding.include?(desired_move)
+        obj.move(desired_move)
+        puts "you moved #{obj.color} #{obj.class} to #{desired_move}"
+      else
+        puts "sorry, invalid move"
+      end
+    elsif (obj.class == King) || (obj.class == Pawn) || (obj.class == Knight)
+      if obj.eligible_moves.include?(desired_move)
+        obj.move(desired_move)
+        puts "you moved #{obj.color} #{obj.class} to #{desired_move}"
+      else
+        puts "sorry, invalid move"
+      end
     else
-      puts "sorry, you suck"
+      puts "invalid entry"
     end
   end
 
